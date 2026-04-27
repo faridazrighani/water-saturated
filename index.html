@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Water Saturation Properties Calculator</title>
+  <link rel="icon" href="data:," />
+  <link rel="stylesheet" href="style.css" />
+  <script charset="utf-8" src="vendor/neutriumJS.thermo.IAPWS97.min.js"></script>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="app-header">
+      <div class="title-block">
+        <p class="eyebrow">Water / Steam Saturation</p>
+        <h1>Water Saturation Properties</h1>
+        <p class="lede">
+          Saturated liquid and vapor properties in the engineering unit set used by the NIST Chemistry WebBook.
+        </p>
+      </div>
+      <div class="reference-strip" aria-label="model summary">
+        <span>IAPWS-IF97 engine</span>
+        <span>NIST unit set</span>
+        <span>Liquid / Vapor</span>
+      </div>
+    </header>
+
+    <section class="panel controls-panel" aria-labelledby="input-title">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Input</p>
+          <h2 id="input-title">Calculation Controls</h2>
+        </div>
+        <span class="meta">Valid below the critical point.</span>
+      </div>
+
+      <div class="controls-grid">
+        <div class="control-group">
+          <h3>Single Point</h3>
+          <div class="form-grid">
+            <label>
+              Input Mode
+              <select id="mode">
+                <option value="P">Pressure</option>
+                <option value="T">Temperature</option>
+              </select>
+            </label>
+
+            <label>
+              Phase Branch
+              <select id="phase">
+                <option value="liquid">Liquid</option>
+                <option value="vapor">Vapor</option>
+              </select>
+            </label>
+
+            <label>
+              Input Value
+              <input id="singleValue" type="number" step="any" value="14.6959" />
+            </label>
+
+            <label>
+              Unit
+              <input id="singleUnit" type="text" value="psia" readonly />
+            </label>
+          </div>
+
+          <div class="button-row">
+            <button id="btnCalc" class="primary">Calculate</button>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <h3>Range Table</h3>
+          <div class="form-grid">
+            <label>
+              Start
+              <input id="rangeStart" type="number" step="any" value="0.088833" />
+            </label>
+
+            <label>
+              End
+              <input id="rangeEnd" type="number" step="any" value="3000" />
+            </label>
+
+            <label>
+              Increment
+              <input id="rangeStep" type="number" step="any" value="200" />
+            </label>
+
+            <label>
+              Unit
+              <input id="rangeUnit" type="text" value="psia" readonly />
+            </label>
+          </div>
+
+          <div class="button-row">
+            <button id="btnCsv" class="secondary">Download CSV</button>
+          </div>
+        </div>
+      </div>
+
+      <p class="status-line" id="statusLine">
+        Pressure mode: saturation pressure in psia.
+      </p>
+    </section>
+
+    <section class="panel">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Result</p>
+          <h2>Calculated Properties</h2>
+        </div>
+        <span id="resultMeta" class="meta"></span>
+      </div>
+      <div class="table-wrap">
+        <table class="result-table">
+          <thead>
+            <tr>
+              <th>Property</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody id="resultBody">
+            <tr><td colspan="2" class="empty">No calculation yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Table</p>
+          <h2>Saturation Table</h2>
+        </div>
+        <span id="tableMeta" class="meta"></span>
+      </div>
+      <div class="table-wrap large" tabindex="0" aria-label="Saturation table with horizontal scroll">
+        <table class="data-table" id="rangeTable">
+          <thead>
+            <tr>
+              <th>Temperature (degF)</th>
+              <th>Pressure (psia)</th>
+              <th>Density (lbm/ft^3)</th>
+              <th>Specific Gravity 20/20C</th>
+              <th>Volume (ft^3/lbm)</th>
+              <th>Internal Energy (Btu/lb-mole)</th>
+              <th>Enthalpy (Btu/lb-mole)</th>
+              <th>Entropy (Btu/lb-mole*R)</th>
+              <th>Cv (Btu/lb-mole*R)</th>
+              <th>Cp (Btu/lb-mole*R)</th>
+              <th>Sound Spd. (ft/s)</th>
+              <th>Joule-Thomson (degF/psia)</th>
+              <th>Viscosity (cP)</th>
+              <th>Therm. Cond. (W/m*K)</th>
+              <th>Surf. Tension (lb/in)</th>
+              <th>Phase</th>
+            </tr>
+          </thead>
+          <tbody id="rangeBody">
+            <tr><td colspan="16" class="empty">No range data yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel auxiliary-panel">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">NIST WebBook</p>
+          <h2>Reference Data</h2>
+        </div>
+      </div>
+
+      <div class="reference-grid">
+        <div>
+          <h3>Reference States, default for fluid</h3>
+          <div class="table-wrap compact">
+            <table class="aux-table">
+              <tbody>
+                <tr>
+                  <th>Enthalpy</th>
+                  <td><span class="mono">H = 19771.296095 Btu/lb-mole</span> at 80.3 degF and 0.15 psia.</td>
+                </tr>
+                <tr>
+                  <th>Entropy</th>
+                  <td><span class="mono">S = 39.198189 Btu/lb-mole*R</span> at 80.3 degF and 0.15 psia.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div>
+          <h3>Additional Fluid Properties</h3>
+          <div class="table-wrap compact">
+            <table class="aux-table aux-table-2col">
+              <tbody>
+                <tr><th>Critical temperature (Tc)</th><td class="mono">705.103 degF</td></tr>
+                <tr><th>Critical pressure (Pc)</th><td class="mono">3200.11 psia</td></tr>
+                <tr><th>Critical density (Dc)</th><td class="mono">20.101808 lbm/ft^3</td></tr>
+                <tr><th>Acentric factor</th><td class="mono">0.3443</td></tr>
+                <tr><th>Normal boiling point</th><td class="mono">211.9537 degF</td></tr>
+                <tr><th>Dipole moment</th><td class="mono">1.855 Debye</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel note">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Review</p>
+          <h2>Model Notes</h2>
+        </div>
+      </div>
+      <ul>
+        <li>The unit labels, range limits, and auxiliary values follow the NIST Chemistry WebBook water fluid page.</li>
+        <li>The calculation engine is NeutriumJS IAPWS-IF97. NIST WebBook and REFPROP thermodynamic tables are based on IAPWS-95, so small numerical differences are expected.</li>
+        <li>Viscosity, thermal conductivity, and surface tension use the IAPWS transport/surface-tension releases exposed by the IF97 library.</li>
+        <li>Specific Gravity 20/20C is density divided by liquid-water density at 20 degC and 1 atm, a common lab/instrument convention.</li>
+        <li>Thermal conductivity near the critical region can differ more from NIST because critical enhancement behavior is model-sensitive.</li>
+        <li>Joule-Thomson is estimated numerically at constant enthalpy with a small pressure perturbation.</li>
+      </ul>
+      <div class="source-links" aria-label="reference links">
+        <a href="https://webbook.nist.gov/cgi/fluid.cgi?Action=Page&ID=C7732185" target="_blank" rel="noopener noreferrer">NIST WebBook Fluid Page</a>
+        <a href="https://www.nist.gov/publications/thermodynamic-properties-water-tabulation-iapws-formulation-1995-thermodynamic" target="_blank" rel="noopener noreferrer">NISTIR 5078</a>
+        <a href="https://www.nist.gov/system/files/documents/srd/10v2-22-2008.htm" target="_blank" rel="noopener noreferrer">NIST SRD 10 Guide</a>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
